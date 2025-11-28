@@ -30,12 +30,21 @@ import ProgressChart from '../components/ProgressChart';
 import HabitTracker from '../components/HabitTracker';
 import GoalTracker from '../components/GoalTracker';
 import QuickNotes from '../components/QuickNotes';
+import CountdownWidget from '../components/CountdownWidget';
+import WeeklyReport from '../components/WeeklyReport';
+import TimeDistribution from '../components/TimeDistribution';
+import DailyQuote from '../components/DailyQuote';
+import TodayFocus from '../components/TodayFocus';
+import CommandPalette from '../components/CommandPalette';
+import RandomReview from '../components/RandomReview';
+import TimeCapsule from '../components/TimeCapsule';
+import MilestoneAlert from '../components/MilestoneAlert';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useNotifications } from '../hooks/useNotifications';
 
 export default function Dashboard() {
   const { events, addEvent, updateEvent, deleteEvent } = useEvents();
-  const { layoutType, timeScale, setTimeScale } = useTimeline();
+  const { layoutType, setLayoutType, timeScale, setTimeScale } = useTimeline();
   const { theme, setTheme } = useTheme();
   const { permission, requestPermission, isSupported } = useNotifications(events);
 
@@ -166,11 +175,18 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* 侧边栏 - 生命进度和统计 */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-1 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2 scrollbar-thin">
+            <DailyQuote />
+            <TodayFocus events={events} onSelectEvent={handleEditEvent} />
+            <RandomReview events={events} onSelectEvent={handleEditEvent} />
+            <TimeCapsule />
             <LifeProgressBar />
+            <CountdownWidget />
             <HabitTracker />
             <GoalTracker />
             <QuickNotes />
+            <WeeklyReport events={events} />
+            <TimeDistribution events={events} />
             <StatsDashboard events={events} />
             <ProgressChart events={events} />
             <ActivityHeatmap events={events} />
@@ -291,6 +307,21 @@ export default function Dashboard() {
 
       {/* 番茄钟 */}
       <PomodoroTimer />
+
+      {/* 命令面板 Ctrl+P */}
+      <CommandPalette
+        onNewEvent={handleAddEvent}
+        onOpenFilter={() => setIsFilterOpen(true)}
+        onOpenReview={() => setIsReviewOpen(true)}
+        onOpenExport={() => setIsExportOpen(true)}
+        onOpenImport={() => setIsImportOpen(true)}
+        onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        onChangeView={setLayoutType}
+        currentTheme={theme}
+      />
+
+      {/* 里程碑庆祝 */}
+      <MilestoneAlert events={events} />
     </div>
   );
 }

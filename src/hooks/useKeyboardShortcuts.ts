@@ -84,11 +84,11 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
 
 // 快捷键帮助信息
 export const SHORTCUTS_INFO = [
+  { keys: 'Ctrl + P', action: '命令面板' },
   { keys: 'Ctrl + K', action: '全局搜索' },
   { keys: 'Ctrl + N', action: '新建事件' },
   { keys: 'Ctrl + F', action: '打开筛选' },
   { keys: 'Ctrl + E', action: '导出数据' },
   { keys: 'Ctrl + D', action: '切换主题' },
   { keys: 'R', action: '打开复盘' },
-  { keys: '+/-', action: '缩放时间轴' },
 ];
