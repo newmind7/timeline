@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { X, Search } from 'lucide-react';
-import { Event } from '../types';
+import { X, Search, Calendar, Tag } from 'lucide-react';
+import { Event, EVENT_CATEGORIES, EventCategory } from '../types';
 import { getEventStatus } from '../utils/dateUtils';
 
 interface FilterPanelProps {
@@ -14,6 +14,9 @@ export default function FilterPanel({ isOpen, onClose, events, onFiltersChange }
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [colorFilter, setColorFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const applyFilters = () => {
     let filtered = events;
@@ -36,6 +39,23 @@ export default function FilterPanel({ isOpen, onClose, events, onFiltersChange }
       filtered = filtered.filter(e => e.color === colorFilter);
     }
 
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(e => e.category === categoryFilter);
+    }
+
+    // 日期区间筛选
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      filtered = filtered.filter(e => new Date(e.date) >= start);
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(e => new Date(e.date) <= end);
+    }
+
     onFiltersChange(filtered);
   };
 
@@ -47,7 +67,50 @@ export default function FilterPanel({ isOpen, onClose, events, onFiltersChange }
     setSearchTerm('');
     setStatusFilter('all');
     setColorFilter('all');
+    setCategoryFilter('all');
+    setStartDate('');
+    setEndDate('');
     onFiltersChange(events);
+  };
+
+  // 快捷日期范围
+  const setQuickDateRange = (range: 'week' | 'month' | 'quarter' | 'year' | 'all') => {
+    const now = new Date();
+    const start = new Date();
+    
+    switch (range) {
+      case 'week':
+        start.setDate(now.getDate() - now.getDay());
+        const weekEnd = new Date(start);
+        weekEnd.setDate(start.getDate() + 6);
+        setStartDate(start.toISOString().split('T')[0]);
+        setEndDate(weekEnd.toISOString().split('T')[0]);
+        break;
+      case 'month':
+        start.setDate(1);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        setStartDate(start.toISOString().split('T')[0]);
+        setEndDate(monthEnd.toISOString().split('T')[0]);
+        break;
+      case 'quarter':
+        const quarter = Math.floor(now.getMonth() / 3);
+        start.setMonth(quarter * 3, 1);
+        const quarterEnd = new Date(now.getFullYear(), (quarter + 1) * 3, 0);
+        setStartDate(start.toISOString().split('T')[0]);
+        setEndDate(quarterEnd.toISOString().split('T')[0]);
+        break;
+      case 'year':
+        start.setMonth(0, 1);
+        const yearEnd = new Date(now.getFullYear(), 11, 31);
+        setStartDate(start.toISOString().split('T')[0]);
+        setEndDate(yearEnd.toISOString().split('T')[0]);
+        break;
+      case 'all':
+        setStartDate('');
+        setEndDate('');
+        break;
+    }
+    setTimeout(handleChange, 0);
   };
 
   if (!isOpen) return null;
@@ -118,7 +181,110 @@ export default function FilterPanel({ isOpen, onClose, events, onFiltersChange }
               <option value="cyan">青色</option>
               <option value="teal">蓝绿色</option>
               <option value="pink">粉色</option>
+              <option value="purple">紫色</option>
             </select>
+          </div>
+
+          {/* 事件分类 */}
+          <div>
+            <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-2">
+              <Tag className="w-4 h-4" />
+              事件分类
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  setCategoryFilter('all');
+                  handleChange();
+                }}
+                className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                  categoryFilter === 'all'
+                    ? 'bg-blue-100 border-blue-500 text-blue-700'
+                    : 'border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                全部
+              </button>
+              {EVENT_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.value}
+                  onClick={() => {
+                    setCategoryFilter(cat.value);
+                    handleChange();
+                  }}
+                  className={`px-3 py-1.5 text-xs rounded-full border transition-colors flex items-center gap-1 ${
+                    categoryFilter === cat.value
+                      ? 'bg-blue-100 border-blue-500 text-blue-700'
+                      : 'border-slate-300 hover:bg-slate-50'
+                  }`}
+                >
+                  <span>{cat.icon}</span>
+                  <span>{cat.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 日期区间筛选 */}
+          <div className="border-t border-slate-200 pt-4">
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+              <Calendar className="w-4 h-4" />
+              日期区间
+            </label>
+            
+            {/* 快捷选择 */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {[
+                { key: 'all', label: '全部' },
+                { key: 'week', label: '本周' },
+                { key: 'month', label: '本月' },
+                { key: 'quarter', label: '本季度' },
+                { key: 'year', label: '今年' },
+              ].map((range) => (
+                <button
+                  key={range.key}
+                  type="button"
+                  onClick={() => setQuickDateRange(range.key as any)}
+                  className="px-3 py-1 text-xs rounded-full border border-slate-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 自定义日期范围 */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-slate-500 mb-1">开始日期</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    handleChange();
+                  }}
+                  className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-500 mb-1">结束日期</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    handleChange();
+                  }}
+                  className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            
+            {(startDate || endDate) && (
+              <p className="text-xs text-slate-500 mt-2">
+                📅 筛选范围：{startDate || '无限制'} 至 {endDate || '无限制'}
+              </p>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4">

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Edit2, Trash2, ChevronDown, ChevronUp, Clock, AlertTriangle } from 'lucide-react';
-import { Event } from '../types';
+import { Event, EVENT_CATEGORIES } from '../types';
 import { formatDate, getEventStatus, daysUntil } from '../utils/dateUtils';
 import { getColorClass, getProgressColor } from '../utils/colorUtils';
 import SubtaskList from './SubtaskList';
@@ -42,14 +42,26 @@ export default function EventCard({ event, onEdit, onDelete, onProgressChange }:
   const getStatusBadge = () => {
     switch (status) {
       case 'completed':
-        return <span className="text-xs font-medium px-2 py-1 bg-blue-100 text-blue-700 rounded-full">已完成</span>;
+        return <span className="text-xs font-medium px-2 py-1 bg-blue-100 text-blue-700 rounded-full dark:bg-blue-900/50 dark:text-blue-300">已完成</span>;
       case 'overdue':
-        return <span className="text-xs font-medium px-2 py-1 bg-red-100 text-red-700 rounded-full">已逾期</span>;
+        return <span className="text-xs font-medium px-2 py-1 bg-red-100 text-red-700 rounded-full dark:bg-red-900/50 dark:text-red-300">已逾期</span>;
       case 'today':
-        return <span className="text-xs font-medium px-2 py-1 bg-amber-100 text-amber-700 rounded-full">今天</span>;
+        return <span className="text-xs font-medium px-2 py-1 bg-amber-100 text-amber-700 rounded-full dark:bg-amber-900/50 dark:text-amber-300">今天</span>;
       case 'upcoming':
-        return <span className="text-xs font-medium px-2 py-1 bg-green-100 text-green-700 rounded-full">即将到来</span>;
+        return <span className="text-xs font-medium px-2 py-1 bg-green-100 text-green-700 rounded-full dark:bg-green-900/50 dark:text-green-300">即将到来</span>;
     }
+  };
+
+  // 获取分类徽章
+  const getCategoryBadge = () => {
+    if (!event.category) return null;
+    const cat = EVENT_CATEGORIES.find(c => c.value === event.category);
+    if (!cat) return null;
+    return (
+      <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded dark:bg-slate-700 dark:text-slate-300">
+        {cat.icon} {cat.label}
+      </span>
+    );
   };
 
   const handleSubtaskProgressChange = (completed: number, total: number) => {
@@ -68,6 +80,7 @@ export default function EventCard({ event, onEdit, onDelete, onProgressChange }:
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="text-sm opacity-75">{formatDate(event.date, 'long')}</span>
             {getStatusBadge()}
+            {getCategoryBadge()}
             {countdown && (
               <span className={`text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1 ${
                 countdown.urgent 
