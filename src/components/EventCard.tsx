@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Edit2, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Edit2, Trash2, ChevronDown, ChevronUp, Clock, AlertTriangle } from 'lucide-react';
 import { Event } from '../types';
 import { formatDate, getEventStatus, daysUntil } from '../utils/dateUtils';
 import { getColorClass, getProgressColor } from '../utils/colorUtils';
 import SubtaskList from './SubtaskList';
+import CountdownTooltip from './CountdownTooltip';
 
 interface EventCardProps {
   event: Event;
@@ -16,7 +17,27 @@ export default function EventCard({ event, onEdit, onDelete, onProgressChange }:
   const [expanded, setExpanded] = useState(false);
   const [progress, setProgress] = useState(event.progress);
   const status = getEventStatus(event.date, progress);
-  const daysText = daysUntil(event.date);
+  const days = daysUntil(event.date);
+
+  // 获取倒计时显示文本
+  const getCountdownDisplay = () => {
+    if (status === 'completed') return null;
+    if (status === 'overdue') {
+      return { text: `逾期 ${Math.abs(days)} 天`, urgent: true };
+    }
+    if (status === 'today') {
+      return { text: '今天截止', urgent: true };
+    }
+    if (days <= 3) {
+      return { text: `剩余 ${days} 天`, urgent: true };
+    }
+    if (days <= 7) {
+      return { text: `剩余 ${days} 天`, urgent: false };
+    }
+    return { text: `剩余 ${days} 天`, urgent: false };
+  };
+
+  const countdown = getCountdownDisplay();
 
   const getStatusBadge = () => {
     switch (status) {
@@ -39,13 +60,24 @@ export default function EventCard({ event, onEdit, onDelete, onProgressChange }:
   };
 
   return (
-    <div className={`rounded-lg border-2 p-4 ${getColorClass(event.color)}`}>
+    <CountdownTooltip days={days} progress={progress} status={status}>
+    <div className={`rounded-lg border-2 p-4 ${getColorClass(event.color)} transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer`}>
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
           <h3 className="font-semibold text-lg mb-1">{event.title}</h3>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="text-sm opacity-75">{formatDate(event.date, 'long')}</span>
             {getStatusBadge()}
+            {countdown && (
+              <span className={`text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1 ${
+                countdown.urgent 
+                  ? 'bg-red-100 text-red-700 animate-pulse' 
+                  : 'bg-slate-100 text-slate-600'
+              }`}>
+                {countdown.urgent ? <AlertTriangle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                {countdown.text}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex gap-2 ml-2">
@@ -93,5 +125,6 @@ export default function EventCard({ event, onEdit, onDelete, onProgressChange }:
         <SubtaskList eventId={event.id} onProgressChange={handleSubtaskProgressChange} />
       )}
     </div>
+    </CountdownTooltip>
   );
 }

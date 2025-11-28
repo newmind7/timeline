@@ -1,4 +1,4 @@
-import { Plus, LogOut, Grid3x3, List, Filter } from 'lucide-react';
+import { Plus, LogOut, Grid3x3, List, Filter, FileText } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTimeline } from '../contexts/TimelineContext';
 import { TimeScale, LayoutType } from '../types';
@@ -6,9 +6,10 @@ import { TimeScale, LayoutType } from '../types';
 interface TimelineHeaderProps {
   onAddEvent: () => void;
   onFilterClick: () => void;
+  onReviewClick: () => void;
 }
 
-export default function TimelineHeader({ onAddEvent, onFilterClick }: TimelineHeaderProps) {
+export default function TimelineHeader({ onAddEvent, onFilterClick, onReviewClick }: TimelineHeaderProps) {
   const { user, signOut } = useAuth();
   const { timeScale, setTimeScale, layoutType, setLayoutType } = useTimeline();
 
@@ -46,8 +47,17 @@ export default function TimelineHeader({ onAddEvent, onFilterClick }: TimelineHe
             <button
               onClick={onFilterClick}
               className="text-slate-600 hover:text-slate-900 transition-colors"
+              title="筛选"
             >
               <Filter className="w-5 h-5" />
+            </button>
+            <button
+              onClick={onReviewClick}
+              className="flex items-center gap-1 text-slate-600 hover:text-indigo-600 transition-colors"
+              title="每日复盘"
+            >
+              <FileText className="w-5 h-5" />
+              <span className="text-sm hidden sm:inline">复盘</span>
             </button>
             <button
               onClick={onAddEvent}
