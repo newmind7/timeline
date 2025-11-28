@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Check, X, Flame, Trophy, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Check, Flame, Trash2 } from 'lucide-react';
 
 interface Habit {
   id: string;
@@ -11,7 +11,7 @@ interface Habit {
 }
 
 const HABIT_ICONS = ['💪', '📚', '🏃', '💧', '🧘', '✍️', '🎯', '💤', '🥗', '🎨'];
-const HABIT_COLORS = ['blue', 'green', 'purple', 'orange', 'pink', 'cyan', 'red', 'yellow'];
+// 预留颜色配置供未来使用
 
 export default function HabitTracker() {
   const [habits, setHabits] = useState<Habit[]>(() => {
@@ -25,8 +25,7 @@ export default function HabitTracker() {
   
   const [isAdding, setIsAdding] = useState(false);
   const [newHabit, setNewHabit] = useState({ name: '', icon: '💪', color: 'blue' });
-  const [editingId, setEditingId] = useState<string | null>(null);
-
+  
   const today = new Date().toISOString().split('T')[0];
 
   // 保存到本地存储
@@ -221,7 +220,7 @@ export default function HabitTracker() {
         <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
           <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">本周记录</div>
           <div className="grid grid-cols-7 gap-1">
-            {last7Days.map((date, i) => {
+            {last7Days.map((date) => {
               const d = new Date(date);
               const completedCount = habits.filter(h => h.completedDates.includes(date)).length;
               const isToday = date === today;

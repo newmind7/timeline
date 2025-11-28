@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { PieChart, BarChart3 } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import { Event, EVENT_CATEGORIES } from '../types';
 import { getEventStatus } from '../utils/dateUtils';
 
@@ -100,7 +100,6 @@ export default function TimeDistribution({ events }: TimeDistributionProps) {
                 const total = Object.values(statusStats).reduce((a, b) => a + b, 0) || 1;
                 return Object.entries(statusStats).map(([status, count]) => {
                   const percentage = (count / total) * 100;
-                  const strokeDasharray = `${percentage} ${100 - percentage}`;
                   const currentOffset = offset;
                   offset += percentage;
                   return (
@@ -157,7 +156,7 @@ export default function TimeDistribution({ events }: TimeDistributionProps) {
         <div>
           <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">分类排行</div>
           <div className="space-y-2">
-            {categoryStats.slice(0, 5).map((stat, i) => (
+            {categoryStats.slice(0, 5).map((stat) => (
               <div key={stat.category} className="flex items-center gap-2">
                 <span className="text-sm">{stat.icon}</span>
                 <span className="text-xs text-slate-600 dark:text-slate-400 w-12">{stat.category}</span>

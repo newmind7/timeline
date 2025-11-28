@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, AlertTriangle, Target, Calendar } from 'lucide-react';
+import { Clock, Calendar } from 'lucide-react';
 
 interface LifeProgressBarProps {
   birthDate?: string;

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { FileText, ChevronLeft, ChevronRight, Download, TrendingUp, TrendingDown, CheckCircle, AlertTriangle } from 'lucide-react';
+import { FileText, ChevronLeft, ChevronRight, Download, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Event, EVENT_CATEGORIES } from '../types';
 import { getEventStatus } from '../utils/dateUtils';
 

@@ -3,6 +3,24 @@ import { supabase } from '../lib/supabase';
 import { Event, Subtask } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
+// 检查是否为演示模式
+const isDemoMode = () => {
+  const demoUser = localStorage.getItem('demo_user');
+  return !!demoUser;
+};
+
+// 本地存储事件（演示模式）
+const LOCAL_EVENTS_KEY = 'demo_events';
+
+const getLocalEvents = (): Event[] => {
+  const saved = localStorage.getItem(LOCAL_EVENTS_KEY);
+  return saved ? JSON.parse(saved) : [];
+};
+
+const saveLocalEvents = (events: Event[]) => {
+  localStorage.setItem(LOCAL_EVENTS_KEY, JSON.stringify(events));
+};
+
 export const useEvents = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
@@ -16,6 +34,14 @@ export const useEvents = () => {
   const fetchEvents = async () => {
     if (!user) return;
     setLoading(true);
+    
+    // 演示模式：使用本地存储
+    if (isDemoMode()) {
+      setEvents(getLocalEvents());
+      setLoading(false);
+      return;
+    }
+    
     try {
       const { data, error } = await supabase
         .from('events')
@@ -34,6 +60,22 @@ export const useEvents = () => {
 
   const addEvent = async (eventData: Omit<Event, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return null;
+    
+    // 演示模式：使用本地存储
+    if (isDemoMode()) {
+      const newEvent: Event = {
+        ...eventData,
+        id: 'demo-' + Date.now(),
+        user_id: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      const newEvents = [...events, newEvent];
+      setEvents(newEvents);
+      saveLocalEvents(newEvents);
+      return newEvent;
+    }
+    
     try {
       const { data, error } = await supabase
         .from('events')
@@ -51,6 +93,16 @@ export const useEvents = () => {
   };
 
   const updateEvent = async (id: string, updates: Partial<Event>) => {
+    // 演示模式：使用本地存储
+    if (isDemoMode()) {
+      const updatedEvents = events.map(e => 
+        e.id === id ? { ...e, ...updates, updated_at: new Date().toISOString() } : e
+      );
+      setEvents(updatedEvents);
+      saveLocalEvents(updatedEvents);
+      return updatedEvents.find(e => e.id === id);
+    }
+    
     try {
       const { data, error } = await supabase
         .from('events')
@@ -69,6 +121,14 @@ export const useEvents = () => {
   };
 
   const deleteEvent = async (id: string) => {
+    // 演示模式：使用本地存储
+    if (isDemoMode()) {
+      const filteredEvents = events.filter(e => e.id !== id);
+      setEvents(filteredEvents);
+      saveLocalEvents(filteredEvents);
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('events')

@@ -39,6 +39,41 @@ import CommandPalette from '../components/CommandPalette';
 import RandomReview from '../components/RandomReview';
 import TimeCapsule from '../components/TimeCapsule';
 import MilestoneAlert from '../components/MilestoneAlert';
+import FocusMode from '../components/FocusMode';
+import BackupReminder from '../components/BackupReminder';
+import TagManager from '../components/TagManager';
+import AchievementSystem from '../components/AchievementSystem';
+import MoodTracker from '../components/MoodTracker';
+import SmartSuggestions from '../components/SmartSuggestions';
+import PeriodSummary from '../components/PeriodSummary';
+import FocusStats from '../components/FocusStats';
+import QuickActions from '../components/QuickActions';
+import TemplateLibrary from '../components/TemplateLibrary';
+import VoiceInput from '../components/VoiceInput';
+import DraggableTimeline from '../components/DraggableTimeline';
+import DataInsights from '../components/DataInsights';
+import EventArchive from '../components/EventArchive';
+import ReportExport from '../components/ReportExport';
+import FloatingMenu from '../components/FloatingMenu';
+import TodayStats from '../components/TodayStats';
+import FocusLeaderboard from '../components/FocusLeaderboard';
+import PeriodGoals from '../components/PeriodGoals';
+import AmbientSounds from '../components/AmbientSounds';
+import TagCloud from '../components/TagCloud';
+import QuickTemplates from '../components/QuickTemplates';
+import ReminderPreview from '../components/ReminderPreview';
+import DailyReview from '../components/DailyReview';
+import TimeBlocking from '../components/TimeBlocking';
+import EfficiencyScore from '../components/EfficiencyScore';
+import QuickStats from '../components/QuickStats';
+import StarredEvents from '../components/StarredEvents';
+import WeekPlan from '../components/WeekPlan';
+import QuickFilters from '../components/QuickFilters';
+import WeeklySummary from '../components/WeeklySummary';
+import TodayTodoList from '../components/TodayTodoList';
+import EisenhowerMatrix from '../components/EisenhowerMatrix';
+import BackupStatus from '../components/BackupStatus';
+import ProgressSnapshots from '../components/ProgressSnapshots';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useNotifications } from '../hooks/useNotifications';
 
@@ -86,6 +121,12 @@ export default function Dashboard() {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
+  const [isTemplateLibraryOpen, setIsTemplateLibraryOpen] = useState(false);
+  const [isVoiceInputOpen, setIsVoiceInputOpen] = useState(false);
+  const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+  const [isReportExportOpen, setIsReportExportOpen] = useState(false);
+  const [focusEvent, setFocusEvent] = useState<Event | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [filteredEvents, setFilteredEvents] = useState<Event[] | null>(null);
@@ -176,8 +217,12 @@ export default function Dashboard() {
         {/* 侧边栏 - 生命进度和统计 */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
           <div className="lg:col-span-1 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2 scrollbar-thin">
+            <TodayStats events={events} />
+            <SmartSuggestions events={events} onSelectEvent={handleEditEvent} onAddEvent={() => setIsModalOpen(true)} />
             <DailyQuote />
             <TodayFocus events={events} onSelectEvent={handleEditEvent} />
+            <MoodTracker />
+            <AchievementSystem events={events} />
             <RandomReview events={events} onSelectEvent={handleEditEvent} />
             <TimeCapsule />
             <LifeProgressBar />
@@ -185,6 +230,36 @@ export default function Dashboard() {
             <HabitTracker />
             <GoalTracker />
             <QuickNotes />
+            <QuickActions 
+              onAddEvent={() => setIsModalOpen(true)}
+              onExport={() => setIsExportOpen(true)}
+              onImport={() => setIsImportOpen(true)}
+              onOpenPomodoro={() => {}}
+              onOpenGoals={() => {}}
+              onOpenNotes={() => {}}
+            />
+            <FocusStats />
+            <FocusLeaderboard />
+            <PeriodGoals />
+            <AmbientSounds />
+            <QuickTemplates onCreateEvent={(e) => addEvent(e)} />
+            <TagCloud events={events} />
+            <ReminderPreview events={events} />
+            <DailyReview events={events} />
+            <TimeBlocking />
+            <EfficiencyScore events={events} />
+            <QuickStats events={events} />
+            <StarredEvents events={events} onEventClick={handleEditEvent} />
+            <WeekPlan events={events} onAddEvent={(date) => setIsModalOpen(true)} onEventClick={handleEditEvent} />
+            <QuickFilters events={events} onFilterChange={(filtered) => setFilteredEvents(filtered)} />
+            <WeeklySummary events={events} />
+            <TodayTodoList />
+            <EisenhowerMatrix events={events} onEventClick={handleEditEvent} />
+            <BackupStatus events={events} onExport={() => setIsExportOpen(true)} />
+            <ProgressSnapshots events={events} />
+            <DraggableTimeline events={events} onUpdateEventDate={handleDateChange} />
+            <PeriodSummary events={events} />
+            <DataInsights events={events} />
             <WeeklyReport events={events} />
             <TimeDistribution events={events} />
             <StatsDashboard events={events} />
@@ -322,6 +397,96 @@ export default function Dashboard() {
 
       {/* 里程碑庆祝 */}
       <MilestoneAlert events={events} />
+
+      {/* 专注模式 */}
+      {focusEvent && (
+        <FocusMode
+          event={focusEvent}
+          onClose={() => setFocusEvent(null)}
+          onComplete={(event) => {
+            updateEvent(event);
+            setFocusEvent(null);
+          }}
+        />
+      )}
+
+      {/* 备份提醒 */}
+      <BackupReminder events={events} onExport={() => setIsExportOpen(true)} />
+
+      {/* 标签管理 */}
+      <TagManager
+        isOpen={isTagManagerOpen}
+        onClose={() => setIsTagManagerOpen(false)}
+      />
+
+      {/* 模板库 */}
+      <TemplateLibrary
+        isOpen={isTemplateLibraryOpen}
+        onClose={() => setIsTemplateLibraryOpen(false)}
+        onSelectTemplate={(template) => {
+          setEditingEvent({
+            id: '',
+            user_id: '',
+            title: template.name,
+            description: template.description || '',
+            date: new Date().toISOString().split('T')[0],
+            color: template.color,
+            progress: template.defaultProgress,
+            category: template.category as any,
+            created_at: '',
+            updated_at: '',
+          });
+          setIsModalOpen(true);
+        }}
+      />
+
+      {/* 语音输入 */}
+      <VoiceInput
+        isOpen={isVoiceInputOpen}
+        onClose={() => setIsVoiceInputOpen(false)}
+        onResult={(text) => {
+          setEditingEvent({
+            id: '',
+            user_id: '',
+            title: text,
+            description: '',
+            date: new Date().toISOString().split('T')[0],
+            color: '#3B82F6',
+            progress: 0,
+            created_at: '',
+            updated_at: '',
+          });
+          setIsModalOpen(true);
+        }}
+      />
+
+      {/* 事件归档 */}
+      <EventArchive
+        isOpen={isArchiveOpen}
+        onClose={() => setIsArchiveOpen(false)}
+        onRestore={(event) => addEvent(event)}
+        onPermanentDelete={(id) => console.log('Permanently deleted:', id)}
+      />
+
+      {/* 统计报告导出 */}
+      <ReportExport
+        events={events}
+        isOpen={isReportExportOpen}
+        onClose={() => setIsReportExportOpen(false)}
+      />
+
+      {/* 浮动快捷菜单 */}
+      <FloatingMenu
+        onAddEvent={() => setIsModalOpen(true)}
+        onOpenSearch={() => {}}
+        onOpenExport={() => setIsExportOpen(true)}
+        onOpenImport={() => setIsImportOpen(true)}
+        onOpenReview={() => setIsReviewOpen(true)}
+        onOpenTemplates={() => setIsTemplateLibraryOpen(true)}
+        onOpenVoice={() => setIsVoiceInputOpen(true)}
+        onOpenArchive={() => setIsArchiveOpen(true)}
+        onOpenReport={() => setIsReportExportOpen(true)}
+      />
     </div>
   );
 }

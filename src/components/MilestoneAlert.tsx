@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Trophy, X, PartyPopper, Star } from 'lucide-react';
+import { Trophy, X, Star } from 'lucide-react';
 import { Event } from '../types';
 
 interface MilestoneAlertProps {
@@ -98,8 +98,9 @@ export default function MilestoneAlert({ events }: MilestoneAlertProps) {
     if (uncelebrated) {
       setMilestone(uncelebrated.milestone);
       setIsVisible(true);
-      setCelebratedMilestones([...celebratedMilestones, uncelebrated.key]);
+      setCelebratedMilestones(prev => [...prev, uncelebrated.key]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [events]);
 
   const handleClose = () => {

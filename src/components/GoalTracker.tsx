@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Target, ChevronDown, ChevronRight, Check, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Target, ChevronDown, ChevronRight, Check, Trash2 } from 'lucide-react';
 
 interface Milestone {
   id: string;

@@ -16,6 +16,16 @@ export const EVENT_CATEGORIES: { value: EventCategory; label: string; icon: stri
   { value: 'other', label: '其他', icon: '📌', color: 'slate' },
 ];
 
+// 事件优先级
+export type EventPriority = 'p0' | 'p1' | 'p2' | 'p3';
+
+export const PRIORITY_LEVELS: { id: EventPriority; label: string; icon: string; color: string; description: string }[] = [
+  { id: 'p0', label: 'P0 紧急', icon: '🔴', color: 'red', description: '立即处理' },
+  { id: 'p1', label: 'P1 重要', icon: '🟠', color: 'orange', description: '本周完成' },
+  { id: 'p2', label: 'P2 普通', icon: '🟡', color: 'yellow', description: '本月完成' },
+  { id: 'p3', label: 'P3 低优', icon: '🟢', color: 'green', description: '有空再做' },
+];
+
 export interface Event {
   id: string;
   user_id: string;
@@ -25,8 +35,10 @@ export interface Event {
   color: string;
   progress: number;
   category?: EventCategory; // 事件分类
+  priority?: EventPriority; // 优先级
   tags?: string[];          // 自定义标签
   reminder?: boolean;       // 是否开启提醒
+  linkedEvents?: string[];  // 关联事件ID
   created_at: string;
   updated_at: string;
 }
@@ -55,15 +67,6 @@ export const VIEW_TYPES: { value: LayoutType; label: string; icon: string }[] = 
   { value: 'list', label: '列表', icon: '📝' },
   { value: 'map', label: '足迹', icon: '🗺️' },
   { value: '3d', label: '3D', icon: '🌌' },
-];
-
-// 事件优先级
-export type EventPriority = 'high' | 'medium' | 'low';
-
-export const PRIORITY_CONFIG: { value: EventPriority; label: string; icon: string; color: string }[] = [
-  { value: 'high', label: '高', icon: '🔴', color: 'red' },
-  { value: 'medium', label: '中', icon: '🟡', color: 'yellow' },
-  { value: 'low', label: '低', icon: '🟢', color: 'green' },
 ];
 
 // 事件模板类型

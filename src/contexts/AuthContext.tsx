@@ -9,6 +9,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  demoLogin: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -71,10 +72,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    // 清除演示模式
+    localStorage.removeItem('demo_user');
+    setUser(null);
   };
 
+  // 演示登录 - 无需验证，使用有效的UUID格式
+  const demoLogin = () => {
+    const demoUser: User = {
+      id: '00000000-0000-0000-0000-000000000000',
+      email: 'demo@timeline.app',
+    };
+    localStorage.setItem('demo_user', JSON.stringify(demoUser));
+    setUser(demoUser);
+  };
+
+  // 检查演示模式
+  useEffect(() => {
+    const demoUser = localStorage.getItem('demo_user');
+    if (demoUser && !user) {
+      setUser(JSON.parse(demoUser));
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut, demoLogin }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
-  Search, Plus, Filter, FileText, Download, Upload, Sun, Moon, 
-  Calendar, List, BarChart3, Map, Box, Columns, Clock, Target,
-  X
+  Search, Plus, Filter, FileText, Download, Upload, Sun, Moon, X
 } from 'lucide-react';
 import { LayoutType, VIEW_TYPES } from '../types';
 

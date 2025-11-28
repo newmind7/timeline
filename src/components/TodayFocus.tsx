@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Zap, Clock, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
+import { Zap, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
 import { Event, EVENT_CATEGORIES } from '../types';
 import { getEventStatus } from '../utils/dateUtils';
 
@@ -41,11 +41,6 @@ export default function TodayFocus({ events, onSelectEvent }: TodayFocusProps) {
   const nextTask = useMemo(() => {
     return todayEvents.find(e => e.progress < 100) || urgentEvents[0];
   }, [todayEvents, urgentEvents]);
-
-  const formatTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-  };
 
   const getDaysOverdue = (dateStr: string) => {
     const date = new Date(dateStr);

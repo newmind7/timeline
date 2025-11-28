@@ -18,12 +18,14 @@ export default function RandomReview({ events, onSelectEvent }: RandomReviewProp
 
   // 获取"那年今日"的事件
   const onThisDayEvents = useMemo(() => {
+    const currentYear = today.getFullYear();
     return events.filter(e => {
       const eventDate = new Date(e.date);
       return eventDate.getMonth() + 1 === todayMonth && 
              eventDate.getDate() === todayDay &&
-             eventDate.getFullYear() !== today.getFullYear();
+             eventDate.getFullYear() !== currentYear;
     }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [events, todayMonth, todayDay]);
 
   // 获取已完成的历史事件（用于随机回顾）
@@ -52,6 +54,7 @@ export default function RandomReview({ events, onSelectEvent }: RandomReviewProp
     if (mode === 'random' && !randomEvent && completedEvents.length > 0) {
       pickRandomEvent();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, completedEvents.length]);
 
   // 计算时间差
