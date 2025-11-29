@@ -62,6 +62,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    // 本地测试模式：如果邮箱以 @ainewmind.top 结尾，使用本地登录
+    if (email.endsWith('@ainewmind.top')) {
+      const testUser: User = {
+        id: 'test-user-' + email.replace(/[^a-z0-9]/gi, ''),
+        email: email,
+      };
+      localStorage.setItem('test_user', JSON.stringify(testUser));
+      setUser(testUser);
+      return;
+    }
+    
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -70,9 +81,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    // 清除演示模式
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      // 忽略错误
+    }
+    // 清除测试/演示模式
+    localStorage.removeItem('test_user');
     localStorage.removeItem('demo_user');
     setUser(null);
   };
@@ -87,10 +102,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(demoUser);
   };
 
-  // 检查演示模式
+  // 检查测试/演示模式
   useEffect(() => {
+    const testUser = localStorage.getItem('test_user');
     const demoUser = localStorage.getItem('demo_user');
-    if (demoUser && !user) {
+    if (testUser && !user) {
+      setUser(JSON.parse(testUser));
+    } else if (demoUser && !user) {
       setUser(JSON.parse(demoUser));
     }
   }, []);

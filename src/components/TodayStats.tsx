@@ -26,7 +26,7 @@ export default function TodayStats({ events }: TodayStatsProps) {
     const thisWeekCompleted = thisWeekEvents.filter(e => e.progress === 100);
     
     // 逾期事件
-    const overdue = events.filter(e => getEventStatus(e.date) === 'overdue' && e.progress < 100);
+    const overdue = events.filter(e => getEventStatus(e.date, e.progress) === 'overdue');
     
     // 进行中
     const inProgress = events.filter(e => e.progress > 0 && e.progress < 100);
@@ -38,25 +38,27 @@ export default function TodayStats({ events }: TodayStatsProps) {
       return diff > 0 && diff <= 7 && e.progress < 100;
     });
 
-    // 连续完成天数
+    // 连续完成天数（简化版，避免无限循环）
     let streak = 0;
     let checkDate = new Date(today);
-    while (true) {
+    let daysChecked = 0;
+    const maxDaysToCheck = 30;
+    
+    while (daysChecked < maxDaysToCheck) {
       const dateStr = checkDate.toISOString().split('T')[0];
       const dayEvents = events.filter(e => e.date.startsWith(dateStr));
       const dayCompleted = dayEvents.filter(e => e.progress === 100);
       
       if (dayEvents.length > 0 && dayCompleted.length === dayEvents.length) {
         streak++;
-        checkDate.setDate(checkDate.getDate() - 1);
-      } else if (dayEvents.length === 0) {
-        checkDate.setDate(checkDate.getDate() - 1);
-        if (streak === 0) continue; // 跳过没有事件的日子
-      } else {
+      } else if (dayEvents.length > 0) {
+        // 有未完成事件，停止计算
         break;
       }
+      // 没有事件的日子跳过，继续往前检查
       
-      if (streak > 30) break; // 最多追溯30天
+      checkDate.setDate(checkDate.getDate() - 1);
+      daysChecked++;
     }
 
     return {

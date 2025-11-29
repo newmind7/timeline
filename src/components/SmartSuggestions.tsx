@@ -27,8 +27,8 @@ export default function SmartSuggestions({ events, onSelectEvent, onAddEvent }: 
     
     // 分析事件
     const overdueEvents = events.filter(e => {
-      const status = getEventStatus(e.date);
-      return status === 'overdue' && e.progress < 100;
+      const status = getEventStatus(e.date, e.progress);
+      return status === 'overdue';
     });
     
     const todayEvents = events.filter(e => e.date.startsWith(today));

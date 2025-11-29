@@ -1,3 +1,5 @@
+import { LayoutType } from '../types';
+
 export const STORAGE_KEYS = {
   EVENTS: 'timeline_events',
   LAYOUT_PREFERENCE: 'timeline_layout',
@@ -14,11 +16,11 @@ export const storage = {
     localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
   },
 
-  getLayoutPreference: (): 'horizontal' | 'vertical' => {
-    return (localStorage.getItem(STORAGE_KEYS.LAYOUT_PREFERENCE) as 'horizontal' | 'vertical') || 'vertical';
+  getLayoutPreference: (): LayoutType => {
+    return (localStorage.getItem(STORAGE_KEYS.LAYOUT_PREFERENCE) as LayoutType) || 'vertical';
   },
 
-  setLayoutPreference: (layout: 'horizontal' | 'vertical') => {
+  setLayoutPreference: (layout: LayoutType) => {
     localStorage.setItem(STORAGE_KEYS.LAYOUT_PREFERENCE, layout);
   },
 

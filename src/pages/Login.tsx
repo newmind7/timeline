@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Play } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -89,24 +89,21 @@ export default function Login() {
             >
               {loading ? '登录中...' : '登录'}
             </button>
-
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-slate-500">或</span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleDemoLogin}
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-2.5 rounded-lg transition-all"
-            >
-              🚀 演示模式（无需注册）
-            </button>
           </form>
+
+          <div className="my-6 flex items-center gap-4">
+            <div className="flex-1 h-px bg-slate-200"></div>
+            <span className="text-slate-400 text-sm">或</span>
+            <div className="flex-1 h-px bg-slate-200"></div>
+          </div>
+
+          <button
+            onClick={handleDemoLogin}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-2.5 rounded-lg transition-all"
+          >
+            <Play className="w-4 h-4" />
+            演示登录（无需注册）
+          </button>
 
           <p className="mt-6 text-center text-slate-600">
             还没有账号？{' '}

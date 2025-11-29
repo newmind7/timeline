@@ -1,13 +1,47 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>计划进度时间轴</title>
+    
+    <!-- 性能优化：DNS 预解析 -->
+    <link rel="dns-prefetch" href="https://nvmrvftfhrxynpfsyiov.supabase.co" />
+    <link rel="preconnect" href="https://nvmrvftfhrxynpfsyiov.supabase.co" crossorigin />
+    
+    <!-- 性能优化：预加载关键资源 -->
+    <link rel="modulepreload" href="/src/main.tsx" />
+    
+    <!-- 性能优化：地图瓦片预连接 -->
+    <link rel="dns-prefetch" href="https://tile.openstreetmap.org" />
+    
     <meta property="og:image" content="https://bolt.new/static/og_default.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+    
+    <!-- 加载时显示骨架屏，减少白屏时间 -->
+    <style>
+      #root:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      }
+      #root:empty::after {
+        content: '';
+        width: 40px;
+        height: 40px;
+        border: 3px solid #3b82f6;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
 </head>
   <body>
     <div id="root"></div>

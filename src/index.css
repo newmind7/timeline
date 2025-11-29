@@ -2,15 +2,89 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 自定义动画 */
+/* ========== 性能优化 ========== */
+
+/* 硬件加速 - 关键元素启用 GPU 渲染 */
+.gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* 减少重绘 - 固定尺寸的容器 */
+.contain-layout {
+  contain: layout style paint;
+}
+
+/* 骨架屏优化 - 固定尺寸防止布局抖动 */
+.skeleton-widget {
+  min-height: 120px;
+  contain: strict;
+}
+
+.skeleton-view {
+  min-height: 400px;
+  contain: strict;
+}
+
+/* 滚动性能优化 */
+.scroll-optimized {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* ========== 自定义动画 ========== */
+
+/* 优化动画 - 使用 GPU 加速属性 */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translate3d(0, -8px, 0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale3d(0.95, 0.95, 1);
+  }
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
   }
 }
 
@@ -23,10 +97,58 @@
   }
 }
 
+/* 动画类 */
 .animate-fadeIn {
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeIn 0.15s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.2s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.15s ease-out;
+  will-change: opacity, transform;
 }
 
 .animate-pulse-slow {
   animation: pulse-slow 2s ease-in-out infinite;
+}
+
+/* 交互状态优化 - 即时响应 */
+.instant-hover {
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+
+.instant-hover:hover {
+  transform: translateY(-2px);
+}
+
+.instant-hover:active {
+  transform: translateY(0);
+  transition-duration: 0.05s;
+}
+
+/* 按钮点击反馈 - 毫秒级响应 */
+.btn-instant {
+  transition: all 0.08s ease-out;
+  transform: translateZ(0);
+}
+
+.btn-instant:active {
+  transform: scale(0.97) translateZ(0);
+  transition-duration: 0.03s;
+}
+
+/* 卡片悬浮效果 */
+.card-hover {
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+  will-change: transform, box-shadow;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) translateZ(0);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
 }

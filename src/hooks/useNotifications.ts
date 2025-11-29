@@ -46,7 +46,7 @@ export function useNotifications(events: Event[]) {
     setTimeout(() => notification.close(), 5000);
   }, [permission]);
 
-  // 检查并发送事件提醒
+  // 检查并发送事件提醒（使用 ref 避免无限循环）
   useEffect(() => {
     if (permission !== 'granted') return;
 
@@ -56,11 +56,10 @@ export function useNotifications(events: Event[]) {
       const tomorrow = new Date(now);
       tomorrow.setDate(tomorrow.getDate() + 1);
       const tomorrowStr = tomorrow.toISOString().split('T')[0];
+      
+      const newNotifiedIds: string[] = [];
 
       events.forEach(event => {
-        // 跳过已通知的事件
-        if (notifiedIds.has(event.id)) return;
-        
         // 跳过已完成的事件
         if (event.progress >= 100) return;
 
@@ -72,7 +71,7 @@ export function useNotifications(events: Event[]) {
             body: event.description || '今天需要完成此事件',
             tag: `today-${event.id}`,
           });
-          setNotifiedIds(prev => new Set([...prev, event.id]));
+          newNotifiedIds.push(event.id);
         }
         // 明天的事件
         else if (eventDate === tomorrowStr) {
@@ -80,19 +79,26 @@ export function useNotifications(events: Event[]) {
             body: event.description || '明天有一个事件',
             tag: `tomorrow-${event.id}`,
           });
-          setNotifiedIds(prev => new Set([...prev, event.id]));
+          newNotifiedIds.push(event.id);
         }
       });
+      
+      if (newNotifiedIds.length > 0) {
+        setNotifiedIds(prev => new Set([...prev, ...newNotifiedIds]));
+      }
     };
 
-    // 初次检查
-    checkReminders();
+    // 初次检查延迟执行，避免页面加载时立即弹出
+    const initialTimer = setTimeout(checkReminders, 5000);
 
     // 每小时检查一次
     const interval = setInterval(checkReminders, 60 * 60 * 1000);
 
-    return () => clearInterval(interval);
-  }, [events, permission, notifiedIds, sendNotification]);
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(interval);
+    };
+  }, [events, permission, sendNotification]); // 移除 notifiedIds 依赖，避免无限循环
 
   // 初始化时检查权限
   useEffect(() => {

@@ -3,10 +3,11 @@ import { supabase } from '../lib/supabase';
 import { Event, Subtask } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
-// 检查是否为演示模式
-const isDemoMode = () => {
+// 检查是否为本地测试/演示模式
+const isLocalMode = () => {
+  const testUser = localStorage.getItem('test_user');
   const demoUser = localStorage.getItem('demo_user');
-  return !!demoUser;
+  return !!testUser || !!demoUser;
 };
 
 // 本地存储事件（演示模式）
@@ -36,7 +37,7 @@ export const useEvents = () => {
     setLoading(true);
     
     // 演示模式：使用本地存储
-    if (isDemoMode()) {
+    if (isLocalMode()) {
       setEvents(getLocalEvents());
       setLoading(false);
       return;
@@ -62,7 +63,7 @@ export const useEvents = () => {
     if (!user) return null;
     
     // 演示模式：使用本地存储
-    if (isDemoMode()) {
+    if (isLocalMode()) {
       const newEvent: Event = {
         ...eventData,
         id: 'demo-' + Date.now(),
@@ -92,9 +93,10 @@ export const useEvents = () => {
     }
   };
 
+  // 更新事件（移除 useCallback 避免循环依赖）
   const updateEvent = async (id: string, updates: Partial<Event>) => {
     // 演示模式：使用本地存储
-    if (isDemoMode()) {
+    if (isLocalMode()) {
       const updatedEvents = events.map(e => 
         e.id === id ? { ...e, ...updates, updated_at: new Date().toISOString() } : e
       );
@@ -112,7 +114,7 @@ export const useEvents = () => {
         .single();
 
       if (error) throw error;
-      setEvents(events.map(e => e.id === id ? data : e));
+      setEvents(prev => prev.map(e => e.id === id ? data : e));
       return data;
     } catch (error) {
       console.error('Failed to update event:', error);
@@ -122,7 +124,7 @@ export const useEvents = () => {
 
   const deleteEvent = async (id: string) => {
     // 演示模式：使用本地存储
-    if (isDemoMode()) {
+    if (isLocalMode()) {
       const filteredEvents = events.filter(e => e.id !== id);
       setEvents(filteredEvents);
       saveLocalEvents(filteredEvents);

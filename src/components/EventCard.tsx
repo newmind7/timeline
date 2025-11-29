@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo, useMemo } from 'react';
 import { Edit2, Trash2, ChevronDown, ChevronUp, Clock, AlertTriangle } from 'lucide-react';
 import { Event, EVENT_CATEGORIES } from '../types';
 import { formatDate, getEventStatus, daysUntil } from '../utils/dateUtils';
@@ -13,11 +13,14 @@ interface EventCardProps {
   onProgressChange: (eventId: string, progress: number) => void;
 }
 
-export default function EventCard({ event, onEdit, onDelete, onProgressChange }: EventCardProps) {
+// 使用 memo 避免不必要的重渲染
+const EventCard = memo(function EventCard({ event, onEdit, onDelete, onProgressChange }: EventCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [progress, setProgress] = useState(event.progress);
-  const status = getEventStatus(event.date, progress);
-  const days = daysUntil(event.date);
+  
+  // 缓存计算结果
+  const status = useMemo(() => getEventStatus(event.date, progress), [event.date, progress]);
+  const days = useMemo(() => daysUntil(event.date), [event.date]);
 
   // 获取倒计时显示文本
   const getCountdownDisplay = () => {
@@ -73,7 +76,7 @@ export default function EventCard({ event, onEdit, onDelete, onProgressChange }:
 
   return (
     <CountdownTooltip days={days} progress={progress} status={status}>
-    <div className={`rounded-lg border-2 p-4 ${getColorClass(event.color)} transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer`}>
+    <div className={`rounded-lg border-2 p-4 ${getColorClass(event.color)} card-hover cursor-pointer gpu-accelerate`}>
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
           <h3 className="font-semibold text-lg mb-1">{event.title}</h3>
@@ -140,4 +143,6 @@ export default function EventCard({ event, onEdit, onDelete, onProgressChange }:
     </div>
     </CountdownTooltip>
   );
-}
+});
+
+export default EventCard;

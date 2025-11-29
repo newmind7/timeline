@@ -58,7 +58,7 @@ export default function ReportExport({ events, isOpen, onClose }: ReportExportPr
     });
 
     const completed = periodEvents.filter(e => e.progress === 100);
-    const overdue = periodEvents.filter(e => getEventStatus(e.date) === 'overdue' && e.progress < 100);
+    const overdue = periodEvents.filter(e => getEventStatus(e.date, e.progress) === 'overdue');
     const inProgress = periodEvents.filter(e => e.progress > 0 && e.progress < 100);
     
     const completionRate = periodEvents.length > 0 
