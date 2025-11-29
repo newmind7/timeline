@@ -44,6 +44,23 @@ const PomodoroTimer = lazy(() => import('../components/PomodoroTimer'));
 const DailyQuote = lazy(() => import('../components/DailyQuote'));
 const QuickActions = lazy(() => import('../components/QuickActions'));
 
+// 更多侧边栏组件
+const LifeProgressBar = lazy(() => import('../components/LifeProgressBar'));
+const HabitTracker = lazy(() => import('../components/HabitTracker'));
+const GoalTracker = lazy(() => import('../components/GoalTracker'));
+const CountdownWidget = lazy(() => import('../components/CountdownWidget'));
+const MoodTracker = lazy(() => import('../components/MoodTracker'));
+const ActivityHeatmap = lazy(() => import('../components/ActivityHeatmap'));
+const ProgressChart = lazy(() => import('../components/ProgressChart'));
+const SmartSuggestions = lazy(() => import('../components/SmartSuggestions'));
+const AchievementSystem = lazy(() => import('../components/AchievementSystem'));
+const DataInsights = lazy(() => import('../components/DataInsights'));
+const FocusStats = lazy(() => import('../components/FocusStats'));
+const PeriodGoals = lazy(() => import('../components/PeriodGoals'));
+const EfficiencyScore = lazy(() => import('../components/EfficiencyScore'));
+const EisenhowerMatrix = lazy(() => import('../components/EisenhowerMatrix'));
+const NotificationCenter = lazy(() => import('../components/NotificationCenter'));
+
 // 浮动组件
 const FloatingMenu = lazy(() => import('../components/FloatingMenu'));
 const MilestoneAlert = lazy(() => import('../components/MilestoneAlert'));
@@ -78,10 +95,24 @@ export default function Dashboard() {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isTemplateLibraryOpen, setIsTemplateLibraryOpen] = useState(false);
+  const [isVoiceInputOpen, setIsVoiceInputOpen] = useState(false);
+  const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+  const [isReportExportOpen, setIsReportExportOpen] = useState(false);
+  const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
+  const [focusEvent, setFocusEvent] = useState<Event | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | undefined>();
+  const [filteredEvents, setFilteredEvents] = useState<Event[] | null>(null);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  
+  // 显示的事件列表
+  const displayEvents = useMemo(() => filteredEvents ?? events, [filteredEvents, events]);
   
   useKeyboardShortcuts({
     onNewEvent: () => setIsModalOpen(true),
+    onOpenFilter: () => setIsFilterOpen(true),
+    onOpenReview: () => setIsReviewOpen(true),
+    onOpenExport: () => setIsExportOpen(true),
     onToggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
   });
   
@@ -120,7 +151,43 @@ export default function Dashboard() {
               <TodayFocus events={events} onSelectEvent={handleEditEvent} />
             </Suspense>
             <Suspense fallback={<WidgetSkeleton />}>
+              <LifeProgressBar />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <HabitTracker />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
               <PomodoroTimer />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <GoalTracker />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <CountdownWidget />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <MoodTracker />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <SmartSuggestions events={displayEvents} />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <ActivityHeatmap events={displayEvents} />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <ProgressChart events={displayEvents} />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <AchievementSystem events={displayEvents} />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <DataInsights events={displayEvents} />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <EfficiencyScore events={displayEvents} />
+            </Suspense>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <EisenhowerMatrix events={displayEvents} onSelectEvent={handleEditEvent} />
             </Suspense>
             <Suspense fallback={<WidgetSkeleton />}>
               <DailyQuote />
@@ -219,6 +286,147 @@ export default function Dashboard() {
       
       {/* 快捷添加 */}
       <QuickAdd onAddEvent={addEvent} />
+      
+      {/* 浮动快捷菜单 */}
+      <Suspense fallback={null}>
+        <FloatingMenu 
+          onNewEvent={handleAddEvent}
+          onOpenFilter={() => setIsFilterOpen(true)}
+          onOpenTemplates={() => setIsTemplateLibraryOpen(true)}
+          onOpenReview={() => setIsReviewOpen(true)}
+          onOpenReport={() => setIsReportExportOpen(true)}
+          onOpenExport={() => setIsExportOpen(true)}
+          onOpenImport={() => setIsImportOpen(true)}
+          onOpenArchive={() => setIsArchiveOpen(true)}
+          onOpenVoice={() => setIsVoiceInputOpen(true)}
+        />
+      </Suspense>
+      
+      {/* 筛选面板 */}
+      <Suspense fallback={null}>
+        <FilterPanel
+          isOpen={isFilterOpen}
+          events={events}
+          onFiltersChange={setFilteredEvents}
+          onClose={() => setIsFilterOpen(false)}
+        />
+      </Suspense>
+      
+      {/* 复盘面板 */}
+      <Suspense fallback={null}>
+        {isReviewOpen && (
+          <ReviewPanel onClose={() => setIsReviewOpen(false)} />
+        )}
+      </Suspense>
+      
+      {/* 导出面板 */}
+      <Suspense fallback={null}>
+        {isExportOpen && (
+          <ExportPanel
+            events={events}
+            onClose={() => setIsExportOpen(false)}
+          />
+        )}
+      </Suspense>
+      
+      {/* 导入面板 */}
+      <Suspense fallback={null}>
+        {isImportOpen && (
+          <ImportPanel
+            onImport={async (eventsToImport) => {
+              for (const e of eventsToImport) {
+                await addEvent(e);
+              }
+            }}
+            onClose={() => setIsImportOpen(false)}
+          />
+        )}
+      </Suspense>
+      
+      {/* 模板库 */}
+      <Suspense fallback={null}>
+        {isTemplateLibraryOpen && (
+          <TemplateLibrary
+            onSelectTemplate={(template) => {
+              setIsTemplateLibraryOpen(false);
+              handleAddEvent();
+            }}
+            onClose={() => setIsTemplateLibraryOpen(false)}
+          />
+        )}
+      </Suspense>
+      
+      {/* 语音输入 */}
+      <Suspense fallback={null}>
+        {isVoiceInputOpen && (
+          <VoiceInput
+            onResult={(text) => {
+              setIsVoiceInputOpen(false);
+              // 可以用识别的文本创建事件
+            }}
+            onClose={() => setIsVoiceInputOpen(false)}
+          />
+        )}
+      </Suspense>
+      
+      {/* 事件归档 */}
+      <Suspense fallback={null}>
+        {isArchiveOpen && (
+          <EventArchive
+            events={events}
+            onRestore={(event) => addEvent(event)}
+            onClose={() => setIsArchiveOpen(false)}
+          />
+        )}
+      </Suspense>
+      
+      {/* 报告导出 */}
+      <Suspense fallback={null}>
+        {isReportExportOpen && (
+          <ReportExport
+            events={events}
+            onClose={() => setIsReportExportOpen(false)}
+          />
+        )}
+      </Suspense>
+      
+      {/* 标签管理 */}
+      <Suspense fallback={null}>
+        {isTagManagerOpen && (
+          <TagManager onClose={() => setIsTagManagerOpen(false)} />
+        )}
+      </Suspense>
+      
+      {/* 专注模式 */}
+      <Suspense fallback={null}>
+        {focusEvent && (
+          <FocusMode
+            event={focusEvent}
+            onComplete={(event) => {
+              updateEvent(event.id, { progress: 100 });
+              setFocusEvent(null);
+            }}
+            onClose={() => setFocusEvent(null)}
+          />
+        )}
+      </Suspense>
+      
+      {/* 命令面板 */}
+      <CommandPalette 
+        events={events}
+        onSelectEvent={handleEditEvent}
+        onNewEvent={handleAddEvent}
+      />
+      
+      {/* 里程碑庆祝 */}
+      <Suspense fallback={null}>
+        <MilestoneAlert events={events} />
+      </Suspense>
+      
+      {/* 备份提醒 */}
+      <Suspense fallback={null}>
+        <BackupReminder events={events} />
+      </Suspense>
     </div>
   );
 }
